@@ -1,41 +1,22 @@
 import * as Rx from 'rxjs';
+import { fromFetch } from 'rxjs/fetch';
 
-/*
-// pending
-const promesse = new Promise((resolve, reject) => {
-  console.log('ok');
-  // fullfilled
-  resolve('o');
-  // rejected
-  reject('y');
-});
-promesse.then((c) => console.log('ok2'));
-*/
-const wakeUp$ = Rx.of('woke up');
+// Open the console in the bottom right to see results.
 
-const goToWork = Rx.of('goToWork').pipe(
-  Rx.delay(500),
-  Rx.finalize(() => console.log('work finilazed'))
-);
-const openStore = Rx.of('openStore').pipe(
-  Rx.delay(10),
-  Rx.finalize(() => console.log('store finilazed'))
-);
-const driveLambo = Rx.of('driveLambo');
-const getMarried = Rx.of('getMarried');
-const goToMiami = Rx.of('goToMiami');
+const apiURL = (name) => `https://pokeapi.co/api/v2/pokemon/${name}`;
+const pokeAPI$ = (name) => fromFetch(apiURL(name));
 
-const sub1 = wakeUp$
+const names = ['pikachu', 'charmander', 'pidgeot', 'rattata'];
+
+Rx.from(names)
   .pipe(
-    Rx.mergeMap((c) => {
-      console.log(c);
-      return goToWork;
+    Rx.mergeMap((c) => pokeAPI$(c)),
+    Rx.tap((c) => {
+      console.log((new Date()).getTime())
     }),
-    Rx.mergeMap((c) => {
-      console.log('went to work');
-      return openStore;
-    })
+    Rx.take(2)
   )
   .subscribe(console.log);
 
-// Open the console in the bottom right to see results.
+
+
